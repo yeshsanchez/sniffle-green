@@ -1,0 +1,54 @@
+name: keep-green
+
+# Runs daily in GitHub's cloud (no need for your laptop to be on).
+# ~80% of days it makes a random number of commits; ~20% it skips,
+# so the graph stays busy but not a perfect wall of green.
+
+on:
+  schedule:
+    # 03:17 UTC daily. Cron here is always UTC; GitHub may delay scheduled
+    # runs by a few minutes to a couple hours under load — that's fine.
+    - cron: "17 3 * * *"
+  workflow_dispatch: {}   # lets you trigger a run by hand from the Actions tab
+
+permissions:
+  contents: write          # required so the job can push commits back
+
+concurrency:
+  group: keep-green
+  cancel-in-progress: false
+
+jobs:
+  commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Maybe commit
+        env:
+          FREQUENCY: "80"   # % chance of any activity on a given day
+          MAX_COMMITS: "6"  # max commits on an active day (controls shade)
+        run: |
+          set -euo pipefail
+
+          # Author identity = the email verified on your GitHub account.
+          # This is what makes the commits count toward YOUR graph.
+          git config user.name  "yeshsanchez"
+          git config user.email "yeshuaaeons@gmail.com"
+
+          if (( RANDOM % 100 >= FREQUENCY )); then
+            echo "Rolled a skip day — no commits today. Keeps it natural."
+            exit 0
+          fi
+
+          n=$(( RANDOM % MAX_COMMITS + 1 ))
+          echo "Making $n commit(s) today."
+          for ((c=1; c<=n; c++)); do
+            ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "$ts keepgreen $RANDOM$RANDOM" >> activity.log
+            git add activity.log
+            git commit -q -m "chore: activity $(date -u +%F) (#$c)"
+            sleep 1
+          done
+
+          git push

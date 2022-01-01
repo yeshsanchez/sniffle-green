@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.yeshsanchez.keepgreen</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/yesh/programming stuffs/auto-commit/daily-commit.sh</string>
+    </array>
+
+    <!-- Run once a day at 11:30 local. If the Mac is asleep at that time,
+         launchd runs the job once on the next wake. -->
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>11</integer>
+        <key>Minute</key>
+        <integer>30</integer>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>/Users/yesh/programming stuffs/auto-commit/keepgreen.local.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/yesh/programming stuffs/auto-commit/keepgreen.local.log</string>
+
+    <!-- Don't fire on load; the daily schedule handles it. -->
+    <key>RunAtLoad</key>
+    <false/>
+</dict>
+</plist>
